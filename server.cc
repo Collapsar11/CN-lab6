@@ -83,7 +83,8 @@ std::string MyServer::print_list()
 {
     std::stringstream ss;
     for (const auto &pair : this->client_list)
-        ss << "Client ID: " << pair.first + 1 << ", IP: " << inet_ntoa((pair.second).client_addr.sin_addr) << ", Port: " << ntohs((pair.second).client_addr.sin_port) << std::endl;
+        ss << "Client ID: " << pair.first + 1 << ", IP: " << inet_ntoa((pair.second).client_addr.sin_addr)
+           << ", Port: " << ntohs((pair.second).client_addr.sin_port) << std::endl;
     return ss.str();
 }
 int MyServer::find_socket(int list_id)

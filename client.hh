@@ -16,7 +16,7 @@
 
 #include <chrono>
 #include <condition_variable>
-#define TEST 0
+#define TEST 1
 
 bool is_connected = false;
 

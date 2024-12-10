@@ -2,69 +2,80 @@
 
 - 描述请求数据包的格式（画图说明），请求类型的定义
 
-  | (Head)PACKET   |
-  | -------------- |
-  | int type       |
-  | int id         |
-  | string message |
+  | (Head)PACKET        |
+  | ------------------- |
+  | int type            |
+  | int id              |
+  | string message      |
+  | **(Tail)TAIL_FLAG** |
 
 - 描述响应数据包的格式（画图说明），响应类型的定义
 
-  | (Head)PACKET   |
-  | -------------- |
-  | int type       |
-  | int id         |
-  | string message |
+  | (Head)PACKET        |
+  | ------------------- |
+  | int type            |
+  | int id              |
+  | string message      |
+  | **(Tail)TAIL_FLAG** |
 
 - 描述指示数据包的格式（画图说明），指示类型的定义
 
-  | (Head)PACKET   |
-  | -------------- |
-  | int type       |
-  | int id         |
-  | string message |
+  | (Head)PACKET        |
+  | ------------------- |
+  | int type            |
+  | int id              |
+  | string message      |
+  | **(Tail)TAIL_FLAG** |
 
 - 客户端初始运行后显示的菜单选项
 
   未连接时：
 
-  ![image-20241210170958239](lab6-report.assets/image-20241210170958239.png)
+  ![image-20241210210947362](lab6-report.assets/image-20241210210947362.png)
 
   连接后：
 
-  ![image-20241210171014627](lab6-report.assets/image-20241210171014627.png)
+  ![image-20241210211003944](lab6-report.assets/image-20241210211003944.png)
 
 - 客户端的主线程循环关键代码截图（描述总体，省略细节部分）
 
-  ![image-20241210171136383](lab6-report.assets/image-20241210171136383.png)
+  ![image-20241210210414940](lab6-report.assets/image-20241210210414940.png)
 
-  ![image-20241210171159917](lab6-report.assets/image-20241210171159917.png)
+  ![image-20241210210520924](lab6-report.assets/image-20241210210520924.png)
 
-  ![image-20241210171213522](lab6-report.assets/image-20241210171213522.png)
+  ![image-20241210210539276](lab6-report.assets/image-20241210210539276.png)
+
+  ![image-20241210210551618](lab6-report.assets/image-20241210210551618.png)
 
 - 客户端的接收数据子线程循环关键代码截图（描述总体，省略细节部分）
 
-  ![image-20241210171340015](lab6-report.assets/image-20241210171340015.png)
+  ![image-20241210210628312](lab6-report.assets/image-20241210210628312.png)
+
+  ![image-20241210210650493](lab6-report.assets/image-20241210210650493.png)
 
 - 服务器初始运行后显示的界面
 
-  ![image-20241210171403326](lab6-report.assets/image-20241210171403326.png)
+  ![image-20241210210936120](lab6-report.assets/image-20241210210936120.png)
 
 - 服务器的主线程循环关键代码截图（描述总体，省略细节部分）
 
-  ![image-20241210171433661](lab6-report.assets/image-20241210171433661.png)
+  ![image-20241210210738931](lab6-report.assets/image-20241210210738931.png)
 
 - 服务器的客户端处理子线程循环关键代码截图（描述总体，省略细节部分）
 
-  ![image-20241210171453799](lab6-report.assets/image-20241210171453799.png)
+  ![image-20241210210758665](lab6-report.assets/image-20241210210758665.png)
 
-  ![image-20241210171506005](lab6-report.assets/image-20241210171506005.png)
+  ![image-20241210210813798](lab6-report.assets/image-20241210210813798.png)
+
+  ![image-20241210210831976](lab6-report.assets/image-20241210210831976.png)
 
 - 客户端选择连接功能时，客户端和服务端显示内容截图
 
-  
+  ![image-20241210211042265](lab6-report.assets/image-20241210211042265.png)
 
   Wireshark抓取的数据包截图：
+
+  
 
 - 客户端选择获取时间功能时，客户端和服务端显示内容截图
 
@@ -72,37 +83,69 @@
 
   Wireshark抓取的数据包截图（展开应用层数据包，标记请求、响应类型、返回的时间数据对应的位置）：
 
+   
+
+  相关的服务器的处理代码片段：
+
+  ![image-20241210211310796](lab6-report.assets/image-20241210211310796.png)
+
 - 客户端选择获取名字功能时，客户端和服务端显示内容截图
+
+  ![image-20241210211138265](lab6-report.assets/image-20241210211138265.png)
 
   Wireshark抓取的数据包截图（展开应用层数据包，标记请求、响应类型、返回的名字数据对应的位置）：
 
+  
+
   相关的服务器的处理代码片段：
 
-  ![image-20241210171717683](lab6-report.assets/image-20241210171717683.png)
+  ![image-20241210211207097](lab6-report.assets/image-20241210211207097.png)
 
 - 客户端选择获取客户端列表功能时，客户端和服务端显示内容截图
 
+  ![image-20241210211404691](lab6-report.assets/image-20241210211404691.png)
+
   Wireshark抓取的数据包截图（展开应用层数据包，标记请求、响应类型、返回的客户端列表数据对应的位置）：
+
+  
 
   相关的服务器的处理代码片段：
 
-  ![image-20241210171730935](lab6-report.assets/image-20241210171730935.png)
+  ![image-20241210211422903](lab6-report.assets/image-20241210211422903.png)
+
+  ![image-20241210211444460](lab6-report.assets/image-20241210211444460.png)
 
 - 客户端选择发送消息功能时，客户端和服务端显示内容截图
 
   发送消息的客户端：
 
-  ![image-20241210171806341](lab6-report.assets/image-20241210171806341.png)
+  ![image-20241210211629636](lab6-report.assets/image-20241210211629636.png)
 
   服务器：
 
+  ![image-20241210211643961](lab6-report.assets/image-20241210211643961.png)
+
   接收消息的客户端：
+
+  ![image-20241210211700160](lab6-report.assets/image-20241210211700160.png)
 
   Wireshark抓取的数据包截图（发送和接收分别标记）：
 
+  
+
   相关的服务器的处理代码片段：
 
+  ![image-20241210211740477](lab6-report.assets/image-20241210211740477.png)
+
   相关的客户端（发送和接收消息）处理代码片段：
+
+  接收：
+
+  ![image-20241210211835851](lab6-report.assets/image-20241210211835851.png)
+
+  发送：
+
+  ![image-20241210211905419](lab6-report.assets/image-20241210211905419.png)
 
 - 拔掉客户端的网线，然后退出客户端程序。观察客户端的TCP连接状态，并使用Wireshark观察客户端是否发出了TCP连接释放的消息。同时观察服务端的TCP连接状态在较长时间内（10分钟以上）是否发生变化。
 
@@ -110,4 +153,16 @@
 
 - 修改获取时间功能，改为用户选择1次，程序内自动发送100次请求。服务器是否正常处理了100次请求，截取客户端收到的响应（通过程序计数一下是否有100个响应回来），并使用Wireshark抓取数据包，观察实际发出的数据包个数。
 
+  运行截图：
+
+  ![image-20241210211950086](lab6-report.assets/image-20241210211950086.png)
+
+  Wireshark：
+
+  
+
 - 多个客户端同时连接服务器，同时发送时间请求（程序内自动连续调用100次send），服务器和客户端的运行截图
+
+  运行截图：
+
+  ![image-20241210212113636](lab6-report.assets/image-20241210212113636.png)
