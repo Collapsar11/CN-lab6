@@ -82,7 +82,6 @@ bool MyServer::is_server_down()
 std::string MyServer::print_list()
 {
     std::stringstream ss;
-    // ss << std::endl;
     for (const auto &pair : this->client_list)
         ss << "Client ID: " << pair.first + 1 << ", IP: " << inet_ntoa((pair.second).client_addr.sin_addr) << ", Port: " << ntohs((pair.second).client_addr.sin_port);
     return ss.str();

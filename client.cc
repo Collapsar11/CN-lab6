@@ -110,7 +110,6 @@ int main()
     while (true)
     {
         int opt = print_menu();
-        // std::cout << "input == " << opt;
         if (opt == 2 && !is_connected)
             break;
         if (opt == 1 && !is_connected)
@@ -185,7 +184,6 @@ int main()
             else
             {
                 std::cout << "\033[32m(Console)\033[0m Request successfully sent, please wait...";
-                // std::this_thread::sleep_for(std::chrono::seconds(1));
                 std::unique_lock<std::mutex> lock(console_mutex);
                 cv.wait(lock, []
                         { return message_received; });
