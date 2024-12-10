@@ -34,7 +34,7 @@ std::string MyPacket::get_message()
 std::string MyPacket::packet_to_string()
 {
     std::ostringstream oss;
-    oss << PACKET << "|" << type << "|" << id << "|" << message;
+    oss << PACKET << "|" << type << "|" << id << "|" << message << "|" << TAIL_FLAG;
     std::string str = oss.str();
     return str;
 }
@@ -49,8 +49,8 @@ MyPacket parsePacket(std::string buffer)
     while (std::getline(ss, temp, '|'))
         parts.push_back(temp);
 
-    if (parts[0] != flag)
-        throw std::invalid_argument("Invalid packet format");
+    // if (parts[0] != flag || parts[4] != TAIL_FLAG)
+    //     throw std::invalid_argument("Invalid packet format");
 
     int type = std::stoi(parts[1]);
     int id = std::stoi(parts[2]);

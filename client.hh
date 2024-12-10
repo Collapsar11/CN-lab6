@@ -26,4 +26,8 @@ std::condition_variable cv;
 bool message_received = false;
 bool waiting_for_send_response = false;
 
+int time_response_count = 0;
+const int TOTAL_TIME_REQUESTS = 100;
+std::mutex count_mutex;
+
 #endif

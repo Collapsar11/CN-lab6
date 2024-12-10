@@ -19,6 +19,7 @@ enum REQ_TYPE
 const std::array<std::string, 6> REQ_STR = {"CONNECT", "TIME", "NAME", "LIST", "DISCON", "SEND"};
 
 #define PACKET "PACKET"
+#define TAIL_FLAG "TAIL_END"
 #define MAXSIZE 1024 // buffer size
 
 class MyPacket
