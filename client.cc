@@ -34,41 +34,6 @@ int print_menu()
     return opt;
 }
 
-// void recv_msg_child_thread()
-// {
-//     while (is_connected)
-//     {
-//         char buffer[MAXSIZE];
-//         memset(buffer, 0, sizeof(buffer));
-//         ssize_t recv_size = recv(tcp_socket, buffer, sizeof(buffer) - 1, 0);
-//         if (recv_size <= 0)
-//         {
-//             is_connected = false;
-//             std::cout << "\n\033[31mConnection closed\033[0m" << std::endl;
-//             break;
-//         }
-//         MyPacket packet = parsePacket(buffer);
-//         {
-//             std::lock_guard<std::mutex> lock(console_mutex);
-//             switch (packet.get_type())
-//             {
-//             case REQ_TYPE::SEND:
-//                 std::cout << "\n\033[35m(Server)\033[0m " << packet.get_message() << std::endl;
-//                 break;
-//             case REQ_TYPE::DISCON:
-//                 is_connected = false;
-//                 std::cout << "\n\033[32m(Console)\033[31m Server has disconnected!\n\033[0m" << std::endl;
-//                 break;
-//             default:
-//                 std::cout << "\n\033[35m(Server)\033[0m " << packet.get_message() << std::endl;
-//                 message_received = true;
-//                 cv.notify_one();
-//             }
-//         }
-//     }
-//     if (!is_connected)
-//         close(tcp_socket);
-// }
 void recv_msg_child_thread()
 {
     while (is_connected)
@@ -88,17 +53,14 @@ void recv_msg_child_thread()
         {
             std::lock_guard<std::mutex> lock(console_mutex);
 
-            // 打印消息
             if (packet.get_type() == REQ_TYPE::SEND)
             {
                 std::cout << "\n\033[35m(Server)\033[0m " << packet.get_message() << std::endl;
-                // 如果是发送方等待响应，设置标志
                 if (waiting_for_send_response)
                 {
                     message_received = true;
                     cv.notify_one();
                 }
-                // 否则，重新打印菜单提示
                 else
                 {
                     std::cout << "\033[34m(Client)\033[0m Please enter the number to choose the function: ";
@@ -109,7 +71,10 @@ void recv_msg_child_thread()
             {
                 is_connected = false;
                 std::cout << "\n\033[32m(Console)\033[31m Server has disconnected!\n\033[0m" << std::endl;
+                message_received = true;
+                cv.notify_one();
             }
+#if !TEST
             else if (packet.get_type() == REQ_TYPE::TIME)
             {
                 std::cout << "\n\033[35m(Server)\033[0m " << packet.get_message() << std::endl;
@@ -123,6 +88,7 @@ void recv_msg_child_thread()
                     }
                 }
             }
+#endif
             else
             {
                 std::cout << "\n\033[35m(Server)\033[0m " << packet.get_message() << std::endl;
@@ -203,65 +169,46 @@ int main()
             std::pair<std::string, unsigned int> dst; // = getIDandMsg();
             switch (opt)
             {
-            // case 1:
-            //     packet.set_packet(REQ_TYPE::TIME);
-            //     break;
+#if TEST
+            case 1:
+                packet.set_packet(REQ_TYPE::TIME);
+                break;
+#else
             case 1:
             {
-                time_response_count = 0; // 重置计数器
+                time_response_count = 0;
                 std::cout << "\033[32m(Console)\033[0m Sending " << TOTAL_TIME_REQUESTS << " time requests..." << std::endl;
 
-                // 循环发送100次请求
                 for (int i = 0; i < TOTAL_TIME_REQUESTS; i++)
                 {
                     packet.set_packet(REQ_TYPE::TIME);
-                    std::string str = packet.packet_to_string(); // 这里会自动添加TAIL_FLAG
+                    std::string str = packet.packet_to_string();
                     if (send(tcp_socket, str.c_str(), str.size(), 0) == -1)
                     {
                         std::cout << "\033[31mSend failed:" << strerror(errno) << "\033[0m" << std::endl;
                         break;
                     }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // 添加短暂延时
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 }
-
-                // 等待所有响应
                 {
                     std::unique_lock<std::mutex> lock(console_mutex);
                     cv.wait(lock, []
                             { return message_received || !is_connected; });
                     message_received = false;
                 }
-
-                // 打印统计信息
                 std::cout << "\033[32m(Console)\033[0m Final statistics: received "
                           << time_response_count << " out of " << TOTAL_TIME_REQUESTS
                           << " time responses." << std::endl;
                 continue;
             }
+#endif
             case 2:
                 packet.set_packet(REQ_TYPE::NAME);
                 break;
             case 3:
                 packet.set_packet(REQ_TYPE::LIST);
                 break;
-            // case 4:
-            // {
-            //     std::pair<std::string, unsigned int> dst = getIDandMsg();
-            //     MyPacket packet(REQ_TYPE::SEND, dst.first, dst.second);
-            //     std::string str = packet.packet_to_string();
-            //     if (send(tcp_socket, str.c_str(), str.size(), 0) == -1)
-            //         std::cout << "\033[31mSend failed:" << strerror(errno) << "\033[0m" << std::endl;
-            //     else
-            //     {
-            //         std::cout << "\033[32m(Console)\033[0m Message has been sent to the server, please wait for a response...";
-            //         std::unique_lock<std::mutex> lock(console_mutex);
-            //         cv.wait(lock, []
-            //                 { return message_received; });
-            //         message_received = false;
-            //     }
-            //     continue;
-            // }
-            case 4: // Send Message
+            case 4:
             {
                 std::pair<std::string, unsigned int> dst = getIDandMsg();
                 MyPacket packet(REQ_TYPE::SEND, dst.first, dst.second);
@@ -279,7 +226,7 @@ int main()
                             { return message_received; });
                     message_received = false;
                     waiting_for_send_response = false;
-                    std::cout << std::endl; // 添加换行
+                    std::cout << std::endl;
                 }
                 continue;
             }
@@ -296,7 +243,7 @@ int main()
                 throw("Request send failed!");
             else
             {
-                std::cout << "\033[32m(Console)\033[0m Request successfully sent, please wait...";
+                std::cout << "\033[32m(Console)\033[0m Request successfully sent!";
                 std::unique_lock<std::mutex> lock(console_mutex);
                 cv.wait(lock, []
                         { return message_received; });

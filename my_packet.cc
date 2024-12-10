@@ -49,9 +49,6 @@ MyPacket parsePacket(std::string buffer)
     while (std::getline(ss, temp, '|'))
         parts.push_back(temp);
 
-    // if (parts[0] != flag || parts[4] != TAIL_FLAG)
-    //     throw std::invalid_argument("Invalid packet format");
-
     int type = std::stoi(parts[1]);
     int id = std::stoi(parts[2]);
     std::string message = parts[3];
