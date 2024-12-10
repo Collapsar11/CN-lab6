@@ -20,6 +20,6 @@ bool is_connected = false;
 
 int tcp_socket;
 
-std::mutex mtx;
+std::mutex console_mutex;
 
 #endif

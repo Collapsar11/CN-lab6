@@ -19,6 +19,8 @@
 #define PORT 4391
 #define MAX_CLIENT 64
 
+std::mutex mtx;
+
 struct client_info
 {
     int client_socket;

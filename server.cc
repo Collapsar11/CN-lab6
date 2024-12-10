@@ -29,10 +29,10 @@ MyServer::MyServer()
         std::cout << "Bind error!" << std::endl;
         exit(1);
     }
-    std::cout << "Bind Port" << PORT << " succeed!" << std::endl;
+    std::cout << "Bind Port " << PORT << " succeed!" << std::endl;
 
     listen(server_socket, 20);
-    std::cout << "Server successfully initialized!" << std::endl;
+    std::cout << "Server listening on port " << PORT << "..." << std::endl;
 }
 MyServer::~MyServer()
 {
@@ -93,7 +93,6 @@ int MyServer::find_client_socket(int list_id)
 }
 void MyServer::_server_on()
 {
-    std::cout << "Server starts working!" << std::endl;
     std::cout << "Waiting for client to connect..." << std::endl;
     while (true)
     {
@@ -110,7 +109,7 @@ void MyServer::_server_on()
         std::cout << std::endl
                   << "A client connected!" << std::endl;
         std::cout << "  Client IP: " << inet_ntoa(client_addr.sin_addr) << std::endl;
-        std::cout << "  Client Port " << ntohs(client_addr.sin_port) << std::endl;
+        std::cout << "  Client Port: " << ntohs(client_addr.sin_port) << std::endl;
 
         int list_id = get_list_id();
         add_client(list_id, client_socket, client_addr);
@@ -128,13 +127,6 @@ void *process_client(void *thread_info)
     sockaddr_in client_addr = info.client_addr;
     MyServer *server = info.server;
 
-    std::stringstream ss;
-    ss << "hello! IP:" << inet_ntoa(client_addr.sin_addr) << " Port:" << ntohs(client_addr.sin_port);
-    MyPacket connect_packet(REQ_TYPE::CONNECT, ss.str());
-    std::string packet_str = connect_packet.packet_to_string();
-    std::cout << "Sending packet: [" << packet_str << "]" << std::endl;
-    send(client_socket, packet_str.c_str(), packet_str.size(), 0);
-
     char buffer[MAXSIZE];
     ssize_t recv_len;
     while (true)
@@ -147,7 +139,7 @@ void *process_client(void *thread_info)
         std::string recv_content(buffer);
         MyPacket recv_packet = parsePacket(recv_content);
 
-        std::cout << "\nRequest from[" << list_id + 1 << "] ";
+        std::cout << "\nRequest from client [" << list_id + 1 << "] ";
         std::cout << "Type: " << recv_packet.get_type() << std::endl;
 
         switch (recv_packet.get_type())
@@ -182,7 +174,7 @@ void *process_client(void *thread_info)
     }
 
     close(client_socket);
-    // std::lock_guard<std::mutex> lock(mtx);
+    std::lock_guard<std::mutex> lock(mtx);
     server->rst_client_list(list_id);
 
     if (server->is_server_down() && !server->client_list_empty())
@@ -197,7 +189,7 @@ void *process_client(void *thread_info)
 void get_connect(int client_socket)
 {
     MyPacket packet(REQ_TYPE::CONNECT, "connect successfully!");
-    std::cout << "  send message: " << "connect successfully!";
+    std::cout << "  Send message: " << "connect successfully!";
     send(client_socket, packet.packet_to_string().c_str(), packet.packet_to_string().size(), 0);
 }
 void get_time(int client_socket)
@@ -209,7 +201,7 @@ void get_time(int client_socket)
     std::stringstream ss;
     ss << asctime(timeinfo);
     MyPacket packet(REQ_TYPE::TIME, ss.str());
-    std::cout << "  send message: " << ss.str() << std::endl;
+    std::cout << "  Send message: " << ss.str() << std::endl;
     send(client_socket, packet.packet_to_string().c_str(), packet.packet_to_string().size(), 0);
 }
 void get_name(int client_socket)
@@ -218,14 +210,14 @@ void get_name(int client_socket)
     hostname.resize(256);
     gethostname(&hostname[0], hostname.size());
     MyPacket packet(REQ_TYPE::NAME, hostname);
-    std::cout << "  send message: " << hostname << std::endl;
+    std::cout << "  Send message: " << hostname << std::endl;
     send(client_socket, packet.packet_to_string().c_str(), packet.packet_to_string().size(), 0);
 }
 void get_list(int client_socket, MyServer server)
 {
     std::string message(server.print_list());
     MyPacket packet(REQ_TYPE::LIST, message);
-    std::cout << "  send message: " << message;
+    std::cout << "  Send message: " << message;
     send(client_socket, packet.packet_to_string().c_str(), packet.packet_to_string().size(), 0);
 }
 void recv_message(int client_socket, int client_id, int dst_id, std::string message, MyServer server)
@@ -255,7 +247,7 @@ void stop_connect(int client_socket)
 {
     std::string message("disconnect");
     MyPacket packet(REQ_TYPE::DISCON, message);
-    std::cout << "  send message: " << message << std::endl;
+    std::cout << "  Send message: " << message << std::endl;
     send(client_socket, packet.packet_to_string().c_str(), packet.packet_to_string().size(), 0);
 }
 
