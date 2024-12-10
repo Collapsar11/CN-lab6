@@ -21,7 +21,7 @@ MyServer::MyServer()
     }
 
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1"); // htonl(INADDR_ANY);
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY); // inet_addr("127.0.0.1");
     server_addr.sin_port = htons(PORT);
     if (bind(server_socket, (sockaddr *)&server_addr, sizeof(server_addr)) != 0)
     {
