@@ -82,9 +82,9 @@ bool MyServer::is_server_down()
 std::string MyServer::print_list()
 {
     std::stringstream ss;
-    ss << std::endl;
+    // ss << std::endl;
     for (const auto &pair : this->client_list)
-        ss << "Client ID: " << pair.first + 1 << ", IP: " << inet_ntoa((pair.second).client_addr.sin_addr) << ", Port: " << ntohs((pair.second).client_addr.sin_port) << std::endl;
+        ss << "Client ID: " << pair.first + 1 << ", IP: " << inet_ntoa((pair.second).client_addr.sin_addr) << ", Port: " << ntohs((pair.second).client_addr.sin_port);
     return ss.str();
 }
 int MyServer::find_client_socket(int list_id)
@@ -157,7 +157,7 @@ void *process_client(void *thread_info)
             get_list(client_socket, *server);
             break;
         case REQ_TYPE::SEND:
-            std::cout << "Message content: " << recv_packet.get_message() << std::endl;
+            std::cout << "  Message content: " << recv_packet.get_message() << std::endl;
             recv_message(client_socket, list_id, -1, recv_packet.get_message(), *server);
             break;
         case REQ_TYPE::DISCON:
@@ -198,10 +198,18 @@ void get_time(int client_socket)
     struct tm *timeinfo;
     time(&rawtime);
     timeinfo = localtime(&rawtime);
-    std::stringstream ss;
-    ss << asctime(timeinfo);
-    MyPacket packet(REQ_TYPE::TIME, ss.str());
-    std::cout << "  Send message: " << ss.str() << std::endl;
+    // std::stringstream ss;
+    // ss << asctime(timeinfo);
+    std::string time_str = asctime(timeinfo);
+    if (!time_str.empty() && time_str[time_str.length() - 1] == '\n')
+    {
+        time_str.erase(time_str.length() - 1);
+    }
+    // MyPacket packet(REQ_TYPE::TIME, ss.str());
+    // std::cout << "  Send message: " << ss.str() << std::endl;
+    MyPacket packet(REQ_TYPE::TIME, time_str);
+    std::cout << " Send message: " << time_str << std::endl;
+
     send(client_socket, packet.packet_to_string().c_str(), packet.packet_to_string().size(), 0);
 }
 void get_name(int client_socket)
@@ -224,14 +232,14 @@ void recv_message(int client_socket, int client_id, int dst_id, std::string mess
 {
     try
     {
-        std::cout << "Received message from client " << client_id + 1 << ":" << std::endl;
-        std::cout << "Message content: " << message << std::endl;
+        // std::cout << "  Received message from client " << client_id + 1 << ":" << std::endl;
+        // std::cout << "  Message content: " << message << std::endl;
 
         std::string ack_msg = "Server received your message: " + message;
         MyPacket ack_packet(REQ_TYPE::SEND, ack_msg);
         std::string ack_str = ack_packet.packet_to_string();
 
-        std::cout << "Sending ACK packet: [" << ack_str << "]" << std::endl;
+        std::cout << "  Sending ACK packet: [" << ack_str << "]" << std::endl;
         if (send(client_socket, ack_str.c_str(), ack_str.size(), 0) == -1)
             std::cerr << "Failed to send acknowledgment" << std::endl;
     }

@@ -9,14 +9,14 @@ int print_menu()
 
         if (!is_connected)
         {
-            std::cout << "\033[33m************Function Menu************" << std::endl;
+            std::cout << "\033[33m**********Function Menu**********" << std::endl;
             std::cout << "* 1. Connect                     *" << std::endl;
             std::cout << "* 2. Exit                        *" << std::endl;
             std::cout << "\033[34m(Client)\033[0m Please enter the number to choose the function: ";
         }
         else
         {
-            std::cout << "\033[33m************Function Menu************" << std::endl;
+            std::cout << "\033[33m**********Function Menu**********" << std::endl;
             std::cout << "* 1. Get Time                   *" << std::endl;
             std::cout << "* 2. Get Name                   *" << std::endl;
             std::cout << "* 3. Get Client List            *" << std::endl;
@@ -62,7 +62,7 @@ void recv_msg_child_thread()
                 std::cout << "\n\033[31mServer has disconnected\033[0m" << std::endl;
                 break;
             default:
-                std::cout << "\033[35m(Server)\033[0m " << packet.get_message() << std::endl;
+                std::cout << "\n\033[35m(Server)\033[0m " << packet.get_message() << std::endl;
             }
         }
     }
@@ -90,9 +90,9 @@ std::pair<std::string, unsigned int> getIDandMsg()
     std::pair<std::string, unsigned int> dst;
     std::string id;
     std::string msg;
-    std::cout << "\033[34m(Client)\033[0m Please enter your client ID: " << std::endl;
+    std::cout << "\033[34m(Client)\033[0m Please enter your client ID: ";
     std::cin >> id;
-    std::cout << "\033[34m(Client)\033[0m Please enter the message content: " << std::endl;
+    std::cout << "\033[34m(Client)\033[0m Please enter the message content: ";
     std::cin >> msg;
     dst.first = msg;
     dst.second = std::stoul(id);
@@ -157,7 +157,7 @@ int main()
                     std::cout << "\033[31mSend failed:" << strerror(errno) << "\033[0m" << std::endl;
                 else
                 {
-                    std::cout << "\033[32m(Console)\033[0m Message has been sent to the server, please wait for a response..." << std::endl;
+                    std::cout << "\033[32m(Console)\033[0m Message has been sent to the server, please wait for a response...";
                     std::unique_lock<std::mutex> lock(console_mutex);
                     cv.wait(lock, []
                             { return message_received; });
@@ -178,7 +178,7 @@ int main()
                 throw("Request send failed!");
             else
             {
-                std::cout << "\033[32m(Console)\033[0m Request successfully sent, please wait..." << std::endl;
+                std::cout << "\033[32m(Console)\033[0m Request successfully sent, please wait...";
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }
 
