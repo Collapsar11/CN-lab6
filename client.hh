@@ -30,4 +30,9 @@ int time_response_count = 0;
 const int TOTAL_TIME_REQUESTS = 100;
 std::mutex count_mutex;
 
+int print_menu();
+void recv_msg_child_thread();
+std::pair<std::string, unsigned int> getIPandPort();
+std::pair<std::string, unsigned int> getIDandMsg();
+
 #endif

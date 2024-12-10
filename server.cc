@@ -113,18 +113,35 @@ void MyServer::_server_on()
         int list_id = get_list_id();
         add_client(list_id, client_socket, client_addr);
 
+        // pthread_t t;
+        // struct thread_info info = {list_id, client_socket, client_addr, this};
+        // pthread_create(&t, NULL, process_client, (void *)&info);
+        thread_info *info = new thread_info{list_id, client_socket, client_addr, this};
+
         pthread_t t;
-        struct thread_info info = {list_id, client_socket, client_addr, this};
-        pthread_create(&t, NULL, process_client, (void *)&info);
+        if (pthread_create(&t, NULL, process_client, (void *)info) != 0)
+        {
+            std::cerr << "Failed to create thread" << std::endl;
+            delete info; // 创建失败时释放内存
+            continue;
+        }
+        pthread_detach(t); // 分离线程，让系统自动回收线程资源
     }
 }
 void *process_client(void *thread_info)
 {
-    struct thread_info info = *((struct thread_info *)thread_info);
-    int list_id = info.list_id;
-    int client_socket = info.client_socket;
-    sockaddr_in client_addr = info.client_addr;
-    MyServer *server = info.server;
+    // struct thread_info info = *((struct thread_info *)thread_info);
+    // int list_id = info.list_id;
+    // int client_socket = info.client_socket;
+    // sockaddr_in client_addr = info.client_addr;
+    // MyServer *server = info.server;
+    struct thread_info *info = (struct thread_info *)thread_info;
+    int list_id = info->list_id;
+    int client_socket = info->client_socket;
+    sockaddr_in client_addr = info->client_addr;
+    MyServer *server = info->server;
+
+    delete info;
 
     char buffer[MAXSIZE];
     ssize_t recv_len;
@@ -173,7 +190,6 @@ void *process_client(void *thread_info)
     }
 
     close(client_socket);
-    // std::lock_guard<std::mutex> lock(mtx);
     server->rst_client_list(list_id);
 
     if (server->is_server_down() && !server->client_list_empty())

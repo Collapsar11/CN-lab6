@@ -40,7 +40,6 @@ int print_menu()
 //     {
 //         char buffer[MAXSIZE];
 //         memset(buffer, 0, sizeof(buffer));
-
 //         ssize_t recv_size = recv(tcp_socket, buffer, sizeof(buffer) - 1, 0);
 //         if (recv_size <= 0)
 //         {
@@ -48,7 +47,6 @@ int print_menu()
 //             std::cout << "\n\033[31mConnection closed\033[0m" << std::endl;
 //             break;
 //         }
-
 //         MyPacket packet = parsePacket(buffer);
 //         {
 //             std::lock_guard<std::mutex> lock(console_mutex);
@@ -68,7 +66,6 @@ int print_menu()
 //             }
 //         }
 //     }
-
 //     if (!is_connected)
 //         close(tcp_socket);
 // }

@@ -19,7 +19,7 @@
 #define PORT 4390
 #define MAX_CLIENT 20
 
-std::mutex mtx;
+std::mutex cout_mutex;
 
 struct client_info
 {
