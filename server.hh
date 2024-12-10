@@ -16,8 +16,8 @@
 
 #include <chrono>
 
-#define PORT 4391
-#define MAX_CLIENT 64
+#define PORT 4390
+#define MAX_CLIENT 20
 
 std::mutex mtx;
 
@@ -33,7 +33,7 @@ private:
     int server_socket;
     sockaddr_in server_addr;
     std::map<int, struct client_info> client_list;
-    int client_list_use[MAX_CLIENT]; // necessary?
+    int client_list_use[20];
     bool _is_server_down = false;
 
 public:

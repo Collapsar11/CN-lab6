@@ -9,20 +9,22 @@ int print_menu()
 
         if (!is_connected)
         {
-            std::cout << "\033[33m**********Function Menu**********" << std::endl;
+            std::cout << "\033[33m***********Function Menu**********" << std::endl;
             std::cout << "* 1. Connect                     *" << std::endl;
             std::cout << "* 2. Exit                        *" << std::endl;
+            std::cout << "**********************************\033[0m" << std::endl;
             std::cout << "\033[34m(Client)\033[0m Please enter the number to choose the function: ";
         }
         else
         {
+            std::cout << std::endl;
             std::cout << "\033[33m**********Function Menu**********" << std::endl;
             std::cout << "* 1. Get Time                   *" << std::endl;
             std::cout << "* 2. Get Name                   *" << std::endl;
             std::cout << "* 3. Get Client List            *" << std::endl;
             std::cout << "* 4. Send Message               *" << std::endl;
             std::cout << "* 5. Disconnect                 *" << std::endl;
-            std::cout << "********************************\033[0m" << std::endl;
+            std::cout << "*********************************\033[0m" << std::endl;
             std::cout << "\033[34m(Client)\033[0m Please enter the number to choose the function: ";
         }
     }
@@ -59,7 +61,7 @@ void recv_msg_child_thread()
                 break;
             case REQ_TYPE::DISCON:
                 is_connected = false;
-                std::cout << "\n\033[31mServer has disconnected\033[0m" << std::endl;
+                std::cout << "\n\033[32m(Console)\033[31m Server has disconnected!\n\033[0m" << std::endl;
                 message_received = true;
                 cv.notify_one();
                 break;
@@ -80,10 +82,10 @@ std::pair<std::string, unsigned int> getIPandPort()
     std::pair<std::string, unsigned int> dst;
     std::string ip;
     std::string port;
-    std::cout << "\033[34m(Client)\033[0m Please enter the server's IP address (in dotted decimal notation): " << std::endl;
+    std::cout << "\033[34m(Client)\033[0m Please enter the server's IP address: ";
     std::cin >> ip;
     dst.first = ip;
-    std::cout << "\033[34m(Client)\033[0m Please enter the server's port: " << std::endl;
+    std::cout << "\033[34m(Client)\033[0m Please enter the server's port: ";
     std::cin >> port;
     dst.second = std::stoul(port);
     return dst;
@@ -125,14 +127,14 @@ int main()
 
             if (connect(tcp_socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) != -1)
             {
-                std::cout << "\033[34m(Client)\033[0m Connection successful!" << std::endl;
+                std::cout << "\033[32m(Console)\033[0m Connection successful!" << std::endl;
                 is_connected = true;
                 std::thread t(recv_msg_child_thread);
                 t.detach();
             }
             else
             {
-                std::cout << "\033[34m(Client)\033[0m Connection failed!" << std::endl;
+                std::cout << "\033[34m(Client)\033[0m  Connection failed!" << std::endl;
                 is_connected = false;
             }
             continue;

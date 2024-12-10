@@ -7,7 +7,6 @@
 #include <array>
 #include <sstream>
 
-// using namespace std;
 enum REQ_TYPE
 {
     CONNECT = 0,
