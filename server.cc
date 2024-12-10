@@ -83,10 +83,10 @@ std::string MyServer::print_list()
 {
     std::stringstream ss;
     for (const auto &pair : this->client_list)
-        ss << "Client ID: " << pair.first + 1 << ", IP: " << inet_ntoa((pair.second).client_addr.sin_addr) << ", Port: " << ntohs((pair.second).client_addr.sin_port);
+        ss << "Client ID: " << pair.first + 1 << ", IP: " << inet_ntoa((pair.second).client_addr.sin_addr) << ", Port: " << ntohs((pair.second).client_addr.sin_port) << std::endl;
     return ss.str();
 }
-int MyServer::find_client_socket(int list_id)
+int MyServer::find_socket(int list_id)
 {
     return client_list_use[list_id] ? client_list[list_id].client_socket : -1;
 }
@@ -156,8 +156,8 @@ void *process_client(void *thread_info)
             get_list(client_socket, *server);
             break;
         case REQ_TYPE::SEND:
-            std::cout << "  Receive message: " << recv_packet.get_message() << std::endl;
-            recv_message(client_socket, list_id, -1, recv_packet.get_message(), *server);
+            std::cout << "  Send message: " << recv_packet.get_message() << "to " << recv_packet.get_id() << std::endl;
+            send_message(client_socket, list_id, recv_packet.get_id(), recv_packet.get_message(), *server);
             break;
         case REQ_TYPE::DISCON:
             stop_connect(client_socket);
@@ -223,21 +223,82 @@ void get_list(int client_socket, MyServer server)
     std::cout << "  Send message: " << message << std::endl;
     send(client_socket, packet.packet_to_string().c_str(), packet.packet_to_string().size(), 0);
 }
-void recv_message(int client_socket, int client_id, int dst_id, std::string message, MyServer server)
+// void send_message(int client_socket, int client_id, int dst_id, std::string message, MyServer server)
+// {
+//     try
+//     {
+//         // std::string send_msg = "Server received client" + client_id + "'s message: " + message;
+//         std::string send_msg = "Server forwards client " + std::to_string(client_id + 1) + "'s message to you: " + message;
+//         MyPacket send_packet(REQ_TYPE::SEND, send_msg, dst_id);
+//         std::string send_str = send_packet.packet_to_string();
+
+//         int target_socket = server.find_socket(dst_id - 1);
+//         std::cout << "  Sending message packet: [" << send_str << "] to client" << dst_id << std::endl;
+//         //     if (send(target_socket, send_str.c_str(), send_str.size(), 0) == -1)
+//         //         std::cerr << "Failed to send acknowledgment" << std::endl;
+//         // }
+//         if (send(target_socket, send_str.c_str(), send_str.size(), 0) == -1)
+//         {
+//             std::cerr << "Failed to send message to target client" << std::endl;
+//             // 发送失败消息给源客户端
+//             MyPacket error_packet(REQ_TYPE::SEND, "Failed to deliver message to target client");
+//             send(client_socket, error_packet.packet_to_string().c_str(),
+//                  error_packet.packet_to_string().size(), 0);
+//         }
+//         else
+//         {
+//             // 发送成功确认消息给源客户端
+//             MyPacket ack_packet(REQ_TYPE::SEND, "Message successfully delivered to client " + std::to_string(dst_id));
+//             send(client_socket, ack_packet.packet_to_string().c_str(),
+//                  ack_packet.packet_to_string().size(), 0);
+//         }
+//     }
+//     catch (const std::exception &e)
+//     {
+//         std::cerr << "Error in recv_message: " << e.what() << std::endl;
+//         MyPacket error_packet(REQ_TYPE::SEND, "Failed to process message");
+//         send(client_socket, error_packet.packet_to_string().c_str(),
+//              error_packet.packet_to_string().size(), 0);
+//     }
+// }
+void send_message(int client_socket, int client_id, int dst_id, std::string message, MyServer server)
 {
     try
     {
-        std::string ack_msg = "Server received your message: " + message;
-        MyPacket ack_packet(REQ_TYPE::SEND, ack_msg);
-        std::string ack_str = ack_packet.packet_to_string();
+        // 转发消息给目标客户端
+        std::string send_msg = "Server forwards client " + std::to_string(client_id + 1) + "'s message to you: " + message;
+        MyPacket send_packet(REQ_TYPE::SEND, send_msg, dst_id);
+        std::string send_str = send_packet.packet_to_string();
 
-        std::cout << "  Sending ACK packet: [" << ack_str << "]" << std::endl;
-        if (send(client_socket, ack_str.c_str(), ack_str.size(), 0) == -1)
-            std::cerr << "Failed to send acknowledgment" << std::endl;
+        int target_socket = server.find_socket(dst_id - 1);
+        if (target_socket == -1)
+        {
+            // 发送错误消息给源客户端
+            MyPacket error_packet(REQ_TYPE::SEND, "Target client not found");
+            send(client_socket, error_packet.packet_to_string().c_str(),
+                 error_packet.packet_to_string().size(), 0);
+            return;
+        }
+
+        // 发送消息给目标客户端
+        if (send(target_socket, send_str.c_str(), send_str.size(), 0) == -1)
+        {
+            // 发送失败消息给源客户端
+            MyPacket error_packet(REQ_TYPE::SEND, "Failed to deliver message to target client");
+            send(client_socket, error_packet.packet_to_string().c_str(),
+                 error_packet.packet_to_string().size(), 0);
+        }
+        else
+        {
+            // 发送成功确认消息给源客户端
+            MyPacket ack_packet(REQ_TYPE::SEND, "Message successfully delivered to client " + std::to_string(dst_id));
+            send(client_socket, ack_packet.packet_to_string().c_str(),
+                 ack_packet.packet_to_string().size(), 0);
+        }
     }
     catch (const std::exception &e)
     {
-        std::cerr << "Error in recv_message: " << e.what() << std::endl;
+        std::cerr << "Error in send_message: " << e.what() << std::endl;
         MyPacket error_packet(REQ_TYPE::SEND, "Failed to process message");
         send(client_socket, error_packet.packet_to_string().c_str(),
              error_packet.packet_to_string().size(), 0);

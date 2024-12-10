@@ -24,5 +24,6 @@ int tcp_socket;
 std::mutex console_mutex;
 std::condition_variable cv;
 bool message_received = false;
+bool waiting_for_send_response = false;
 
 #endif

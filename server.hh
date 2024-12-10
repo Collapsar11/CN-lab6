@@ -50,7 +50,7 @@ public:
     void set_is_server_down();
     bool is_server_down();
     std::string print_list();
-    int find_client_socket(int list_id);
+    int find_socket(int list_id);
 };
 
 struct thread_info
@@ -68,7 +68,7 @@ void get_connect(int client_socket);
 void get_time(int client_socket);
 void get_name(int client_socket);
 void get_list(int client_socket, MyServer server);
-void recv_message(int client_socket, int client_id, int dst_id, std::string message, MyServer server);
+void send_message(int client_socket, int client_id, int dst_id, std::string message, MyServer server);
 void stop_connect(int client_socket);
 
 #endif
