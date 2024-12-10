@@ -60,9 +60,13 @@ void recv_msg_child_thread()
             case REQ_TYPE::DISCON:
                 is_connected = false;
                 std::cout << "\n\033[31mServer has disconnected\033[0m" << std::endl;
+                message_received = true;
+                cv.notify_one();
                 break;
             default:
                 std::cout << "\n\033[35m(Server)\033[0m " << packet.get_message() << std::endl;
+                message_received = true;
+                cv.notify_one();
             }
         }
     }
@@ -179,7 +183,11 @@ int main()
             else
             {
                 std::cout << "\033[32m(Console)\033[0m Request successfully sent, please wait...";
-                std::this_thread::sleep_for(std::chrono::seconds(1));
+                // std::this_thread::sleep_for(std::chrono::seconds(1));
+                std::unique_lock<std::mutex> lock(console_mutex);
+                cv.wait(lock, []
+                        { return message_received; });
+                message_received = false;
             }
 
             if (!is_connected)
