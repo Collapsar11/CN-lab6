@@ -15,11 +15,14 @@
 #include <unistd.h>
 
 #include <chrono>
+#include <condition_variable>
 
 bool is_connected = false;
 
 int tcp_socket;
 
 std::mutex console_mutex;
+std::condition_variable cv;
+bool message_received = false;
 
 #endif
